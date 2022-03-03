@@ -32,9 +32,9 @@ if __name__ == '__main__':
         help='If True, I will not compare data in requirements and installed packages and list differences')
     parser.add_argument(
         '--freeze',
-        type=str,
-        default='papack-reqs.txt',
-        help='If specified, requirements deduced from project files will be written to specified file')
+        type=bool,
+        default=True,
+        help='If True, papack-reqs.txt file with deduced requirements will be generated in project root')
     parser.add_argument(
         '--verbose',
         '-v',
@@ -76,8 +76,9 @@ if __name__ == '__main__':
     logger.info(f'Found {len(external_imports)} required packages: {", ".join(external_imports)}')
 
     if args.freeze:
-        write_file(args.freeze, external_imports)
-        logger.info(f'Successfully wrote project requirements to file "{args.freeze}"')
+        papack_reqs_file = os.path.join(args.path, 'papack-reqs.txt')
+        write_file(papack_reqs_file, external_imports)
+        logger.info(f'Successfully wrote project requirements to file "{papack_reqs_file}"')
 
     if args.noreqs:
         logger.debug('Got a --noreqs flag, exiting...')
