@@ -50,7 +50,7 @@ def extract_imports(file: str, imports_line_limit=50) -> List[str]:
         # following line must contain imports
         expect_imports = False
 
-        for line in source.readlines(imports_line_limit):
+        for line in source.readlines()[:imports_line_limit]:
             if expect_imports:
                 # Check if the string is (1) not empty
                 if not line.strip():
@@ -61,6 +61,7 @@ def extract_imports(file: str, imports_line_limit=50) -> List[str]:
             # the line is a comment
             if 'import' not in line or line.strip().startswith('#') or line.strip().startswith('"'):
                 continue
+
             # If the line contains '\' or '(', indicate that the next line
             # contains imports as well
             if '(' in line:
@@ -80,12 +81,13 @@ def extract_imports(file: str, imports_line_limit=50) -> List[str]:
             """
             # Now we split the line into words
             words = line.strip().replace('(', '').replace(')', '').replace(',', '').replace('\\', '').split(' ')
-            print(words)
+
             # If there are comments, we're interested only in what comes before the comment
             for index, word in enumerate(words):
                 if '#' in word or word == 'from' and index > 1 or word == 'import' and index > 1:
                     words = words[:index]
-                    break
+                    continue
+
             if not any(words):
                 continue
 
