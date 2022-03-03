@@ -3,16 +3,17 @@ from os.path import join
 from typing import List, Union
 
 
-def list_files(path: str, extensions: list = None) -> List[str]:
+def list_files(path: str, extensions: list = None, ignore_folders: list = None) -> List[str]:
     """List files in a directory and return full paths to these files
 
     :param path: Root path
     :param extensions: List of extensions to include. Files with other extensions will be ignored
+    :param ignore_folders: List of directory names that will be ignored
     :return: List of full paths to files in specified directory
     """
     contents = []
-    for entry in [join(path, e) for e in os.listdir(path)]:
-        if os.path.isdir(entry):
+    for name, entry in [(e, join(path, e)) for e in os.listdir(path)]:
+        if os.path.isdir(entry) and (not ignore_folders or name not in ignore_folders):
             contents.extend(list_files(entry, extensions=extensions))
             continue
 
@@ -79,6 +80,7 @@ def extract_imports(file: str, imports_line_limit=50) -> List[str]:
             """
             # Now we split the line into words
             words = line.strip().replace('(', '').replace(')', '').replace(',', '').replace('\\', '').split(' ')
+            print(words)
             # If there are comments, we're interested only in what comes before the comment
             for index, word in enumerate(words):
                 if '#' in word or word == 'from' and index > 1 or word == 'import' and index > 1:

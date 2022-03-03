@@ -14,6 +14,8 @@ if __name__ == '__main__':
         'managing packages required for your project',
         usage='papack ... or python -m papack ...')
     parser.add_argument('--path', help='Path to project folder I should check')
+    parser.add_argument('--nocheck', nargs="+",
+                        help='List of folders I should not look into. Separate with a colon')
     parser.add_argument(
         '--implim',
         type=int,
@@ -53,7 +55,7 @@ if __name__ == '__main__':
     logger.debug(f'Checking "{path}"...')
 
     # Obtain list of files
-    files = list_files(path, extensions=['py'])
+    files = list_files(path, extensions=['py'], ignore_folders=args.nocheck)
     logger.info(f'Found {len(files)} files')
     if not files:
         raise SystemExit('Nothing to do here: no Python files')
