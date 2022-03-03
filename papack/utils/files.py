@@ -13,7 +13,7 @@ def list_files(path: str, extensions: list = None) -> List[str]:
     contents = []
     for entry in [join(path, e) for e in os.listdir(path)]:
         if os.path.isdir(entry):
-            contents.append(list_files(entry, extensions=extensions))
+            contents.extend(list_files(entry, extensions=extensions))
             continue
 
         if not extensions or entry.split('.')[-1] in extensions:
@@ -33,3 +33,60 @@ def convert_to_module_name(path: str) -> str:
         raise ValueError(f'File "{path}" is not a Python module!')
 
     return file_name.split('.')[0]
+
+
+def extract_imports(file: str, imports_line_limit=50) -> List[str]:
+    """Extract imports present in file with specified path
+
+    :param file: Path to python file
+    :param imports_line_limit: Max number of lines that will be checked for presence of input statements.
+    :return: A list modules that are imported in this file
+    """
+    imports = []
+
+    with open(file, 'r') as source:
+        # Since python import statements can be multiline, we indicate that the
+        # following line must contain imports
+        expect_imports = False
+
+        for line in source.readlines(imports_line_limit):
+            if expect_imports:
+                # Check if the string is (1) not empty
+                if not line.strip():
+                    expect_imports = False
+                    continue
+
+            # In other cases skip the line if no import statement is found or
+            # the line is a comment
+            if 'import' not in line or line.strip().startswith('#') or line.strip().startswith('"'):
+                continue
+            # If the line contains '\' or '(', indicate that the next line
+            # contains imports as well
+            if '(' in line:
+                expect_imports = True
+            else:
+                expect_imports = False
+
+            """
+            Now we have to convert lines into module names
+            There are some things that might get in the way
+            1. Comments. For example, if the beginning of the file looks like this
+            ```
+                import module # Just some test module (my own module)
+                print('Program has started!')
+             ```
+            then code above will add the print statement to list of probable imports.
+            """
+            # Now we split the line into words
+            words = line.strip().replace('(', '').replace(')', '').replace(',', '').replace('\\', '').split(' ')
+            # If there are comments, we're interested only in what comes before the comment
+            for index, word in enumerate(words):
+                if '#' in word or word == 'from' and index > 1 or word == 'import' and index > 1:
+                    words = words[:index]
+                    break
+            if not any(words):
+                continue
+
+            imports.extend(filter(lambda x: x, [w.split('.')[0] for w in words if w != 'import' and w != 'from']))
+
+    return imports

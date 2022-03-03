@@ -3,16 +3,27 @@ import argparse
 import os
 import logging
 from papack.enums import LOGGING_VERBOSITY_LEVELS
-from papack.utils import list_files, convert_to_module_name
+from papack.utils import list_files, convert_to_module_name, extract_imports
 
 
 if __name__ == '__main__':
     # Retrieve arguments
-    parser = argparse.ArgumentParser(description='Papack is a python package helper that is intended to assist you in '
-                                                 'managing packages required for your project',
-                                     usage='papack ... or python -m papack ...')
+    parser = argparse.ArgumentParser(
+        description='Papack is a python package helper that is intended to assist you in '
+        'managing packages required for your project',
+        usage='papack ... or python -m papack ...')
     parser.add_argument('--path', help='Path to project folder I should check')
-    parser.add_argument('--verbose', '-v', action='count', default=0, help='Verbosity level (0-3)')
+    parser.add_argument(
+        '--implim',
+        type=int,
+        default=50,
+        help='Max number of lines that will be checked for presence of imports. Default=50')
+    parser.add_argument(
+        '--verbose',
+        '-v',
+        action='count',
+        default=0,
+        help='Verbosity level (0-3)')
     args = parser.parse_args()
 
     # Configure logging
@@ -36,5 +47,13 @@ if __name__ == '__main__':
     # and what is imported from project file
     project_modules = [convert_to_module_name(entry) for entry in files]
 
+    # Extract imports from files
+    imports = []
+    for module_imports in [extract_imports(f, imports_line_limit=args.implim) for f in files]:
+        imports.extend(module_imports)
 
+    imports = set(imports)
+
+    external_imports = [entry for entry in imports if entry not in project_modules]
+    print(external_imports)
 
