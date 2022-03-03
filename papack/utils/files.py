@@ -1,6 +1,6 @@
 import os
 from os.path import join
-from typing import List
+from typing import List, Union
 
 
 def list_files(path: str, extensions: list = None) -> List[str]:
@@ -90,3 +90,29 @@ def extract_imports(file: str, imports_line_limit=50) -> List[str]:
             imports.extend(filter(lambda x: x, [w.split('.')[0] for w in words if w != 'import' and w != 'from']))
 
     return imports
+
+
+def read_requirements(file: str) -> List[str]:
+    """Read requirements file and extract listed packages
+
+    :param file: Path to requirements.txt file
+    :return: List of packages specified in requirements.txt
+    """
+    packages = []
+    with open(file, 'r') as source:
+        for line in source.readlines():
+            packages.append(line[:line.index('=')])
+    return packages
+
+
+def write_file(file: str, contents: Union[List, str]) -> None:
+    """Write given contents to file
+
+    :param file: File path. It will be overwritten or created if doesn't exist
+    :param contents: Contents. You can specify it either as a list of lines or as a string
+    :return: None
+    """
+    with open(file, 'w', encoding='utf-8') as dest:
+        if isinstance(contents, list):
+            contents = '\n'.join(contents)
+        dest.write(contents)
