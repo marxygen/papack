@@ -1,7 +1,6 @@
 """Main papack execution file"""
 import argparse
 import os
-import sys
 import logging
 from papack.enums import LOGGING_VERBOSITY_LEVELS
 from papack.utils import (list_files, convert_to_module_name, extract_imports,
@@ -22,13 +21,13 @@ if __name__ == '__main__':
         help='Max number of lines that will be checked for presence of imports. Default=50')
     parser.add_argument(
         '--reqs',
-        default='./requirements.txt',
-        help='Path to requirements.txt for this project. Used unless --noreqs flag is set')
+        help='Path to requirements.txt for this project. Used unless --noreqs flag is set.'
+             ' Defaults to requirements.txt in specified directory')
     parser.add_argument(
         '--noreqs',
         type=bool,
         default=False,
-        help='If specified, I will not compare data in requirements and installed packages and list differences')
+        help='If True, I will not compare data in requirements and installed packages and list differences')
     parser.add_argument(
         '--freeze',
         type=str,
@@ -82,6 +81,9 @@ if __name__ == '__main__':
         logger.debug('Got a --noreqs flag, exiting...')
         raise SystemExit()
 
+    # If location of requirements file is not specified, assume default file in specified location
+    args.reqs = args.reqs or os.path.join(args.path, 'requirements.txt')
+
     if not os.path.exists(args.reqs):
         raise SystemExit(f'No requirements file is found at "{args.reqs}"')
 
@@ -91,5 +93,3 @@ if __name__ == '__main__':
 
     logger.warning(f'Found some packages that are not present in "{args.reqs}": {", ".join(not_listed)}')
     logger.warning(f'Found some packages that might not be required: {", ".join(not_used)}')
-
-
