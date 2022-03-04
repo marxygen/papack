@@ -26,4 +26,12 @@ optional arguments:
   --verbose, -v         Verbosity level (0-3)
 ```
 
-### All code formatted with `autopep8`
+## Tests
+Tests are located in `/tests/` folder. To demonstrate features of papack I typically use the following approach:<br>
+- `requirements.txt` file usually contains some irrelevant requirements along with required packages
+- `papack-reqs.txt` file contains what papack deduced the requirements to be
+- `corr-reqs.txt` file (if present) contains correct requirements. Usually I put this file when papack's prediction is incorrect.<br><br>
+###Currently, there are the following tests:
+- **Simple flask app** (`/tests/flask/`). There is only a single dependency - `flask`, and papack was able to predict it.
+
+### All code formatted with `autopep8`. It wasn't me who made it hideous)).
