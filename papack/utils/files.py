@@ -49,11 +49,10 @@ def extract_imports(file: str, imports_line_limit=50) -> List[str]:
     """
     imports = []
 
-    with open(file, 'r') as source:
+    with open(file, 'r', encoding='utf-8') as source:
         # Since python import statements can be multiline, we indicate that the
         # following line must contain imports
         expect_imports = False
-
         for line in source.readlines()[:imports_line_limit]:
             if expect_imports:
                 # Check if the string is (1) not empty
