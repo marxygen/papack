@@ -10,12 +10,15 @@ from papack.utils import (list_files, convert_to_module_name, extract_imports,
 if __name__ == '__main__':
     # Retrieve arguments
     parser = argparse.ArgumentParser(
+        prog='papack',
         description='Papack is a python package helper that is intended to assist you in '
         'managing packages required for your project',
         usage='papack ... or python -m papack ...')
     parser.add_argument('--path', help='Path to project folder I should check')
-    parser.add_argument('--nocheck', nargs="+",
-                        help='List of folders I should not look into. Separate with a colon')
+    parser.add_argument('--nocheck',
+                        nargs="+",
+                        default=['venv'],
+                        help='List of files and folders I should not look into. Ignores `venv` if not specified')
     parser.add_argument(
         '--implim',
         type=int,
@@ -55,7 +58,7 @@ if __name__ == '__main__':
     logger.debug(f'Checking "{path}"...')
 
     # Obtain list of files
-    files = list_files(path, extensions=['py'], ignore_folders=args.nocheck)
+    files = list_files(path, extensions=['py'], ignore=args.nocheck)
     logger.info(f'Found {len(files)} files')
     if not files:
         raise SystemExit('Nothing to do here: no Python files')
