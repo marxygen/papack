@@ -15,10 +15,11 @@ if __name__ == '__main__':
         'managing packages required for your project',
         usage='papack ... or python -m papack ...')
     parser.add_argument('--path', help='Path to project folder I should check')
-    parser.add_argument('--nocheck',
-                        nargs="+",
-                        default=['venv'],
-                        help='List of files and folders I should not look into. Ignores `venv` if not specified')
+    parser.add_argument(
+        '--nocheck',
+        nargs="+",
+        default=['venv'],
+        help='List of files and folders I should not look into. Ignores `venv` if not specified')
     parser.add_argument(
         '--implim',
         type=int,
@@ -69,33 +70,44 @@ if __name__ == '__main__':
 
     # Extract imports from files
     imports = []
-    for module_imports in [extract_imports(f, imports_line_limit=args.implim) for f in files]:
+    for module_imports in [
+        extract_imports(
+            f,
+            imports_line_limit=args.implim) for f in files]:
         imports.extend(module_imports)
 
     imports = set(imports)
 
     stdlib_modules = get_stdlib_modules()
-    external_imports = [entry for entry in imports if entry not in project_modules and entry not in stdlib_modules]
-    logger.info(f'Found {len(external_imports)} required packages: {", ".join(external_imports)}')
+    external_imports = [
+        entry for entry in imports if entry not in project_modules and entry not in stdlib_modules]
+    logger.info(
+        f'Found {len(external_imports)} required packages: {", ".join(external_imports)}')
 
     if args.freeze:
         papack_reqs_file = os.path.join(args.path, 'papack-reqs.txt')
         write_file(papack_reqs_file, external_imports)
-        logger.info(f'Successfully wrote project requirements to file "{papack_reqs_file}"')
+        logger.info(
+            f'Successfully wrote project requirements to file "{papack_reqs_file}"')
 
     if args.noreqs:
         logger.debug('Got a --noreqs flag, exiting...')
         raise SystemExit()
 
-    # If location of requirements file is not specified, assume default file in specified location
+    # If location of requirements file is not specified, assume default file
+    # in specified location
     args.reqs = args.reqs or os.path.join(args.path, 'requirements.txt')
 
     if not os.path.exists(args.reqs):
         raise SystemExit(f'No requirements file is found at "{args.reqs}"')
 
     requirements = read_requirements(args.reqs)
-    not_listed = [entry for entry in external_imports if entry not in requirements]
-    not_used = [entry for entry in requirements if entry not in external_imports]
+    not_listed = [
+        entry for entry in external_imports if entry not in requirements]
+    not_used = [
+        entry for entry in requirements if entry not in external_imports]
 
-    logger.warning(f'Found some packages that are not present in "{args.reqs}": {", ".join(not_listed)}')
-    logger.warning(f'Found some packages that might not be required: {", ".join(not_used)}')
+    logger.warning(
+        f'Found some packages that are not present in "{args.reqs}": {", ".join(not_listed)}')
+    logger.warning(
+        f'Found some packages that might not be required: {", ".join(not_used)}')

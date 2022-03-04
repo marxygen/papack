@@ -3,7 +3,8 @@ from os.path import join
 from typing import List, Union
 
 
-def list_files(path: str, extensions: list = None, ignore: list = None) -> List[str]:
+def list_files(path: str, extensions: list = None,
+               ignore: list = None) -> List[str]:
     """List files in a directory and return full paths to these files
 
     :param path: Root path
@@ -12,12 +13,17 @@ def list_files(path: str, extensions: list = None, ignore: list = None) -> List[
     :return: List of full paths to files in specified directory
     """
     contents = []
-    for name, entry in [(e, join(path, e).replace("\\","/")) for e in os.listdir(path)]:
+    for name, entry in [(e, join(path, e).replace("\\", "/"))
+                        for e in os.listdir(path)]:
         if ignore and name in ignore:
             continue
 
         if os.path.isdir(entry):
-            contents.extend(list_files(entry, extensions=extensions, ignore=ignore))
+            contents.extend(
+                list_files(
+                    entry,
+                    extensions=extensions,
+                    ignore=ignore))
             continue
 
         if not extensions or name.split('.')[-1] in extensions:
@@ -62,7 +68,8 @@ def extract_imports(file: str, imports_line_limit=50) -> List[str]:
 
             # In other cases skip the line if no import statement is found or
             # the line is a comment
-            if 'import' not in line or line.strip().startswith('#') or line.strip().startswith('"'):
+            if 'import' not in line or line.strip().startswith(
+                    '#') or line.strip().startswith('"'):
                 continue
 
             # If the line contains '\' or '(', indicate that the next line
@@ -83,9 +90,18 @@ def extract_imports(file: str, imports_line_limit=50) -> List[str]:
             then code above will add the print statement to list of probable imports.
             """
             # Now we split the line into words
-            words = line.strip().replace('(', '').replace(')', '').replace(',', '').replace('\\', '').split(' ')
+            words = line.strip().replace(
+                '(',
+                '').replace(
+                ')',
+                '').replace(
+                ',',
+                '').replace(
+                '\\',
+                '').split(' ')
 
-            # If there are comments, we're interested only in what comes before the comment
+            # If there are comments, we're interested only in what comes before
+            # the comment
             for index, word in enumerate(words):
                 if '#' in word or word == 'from' and index > 1 or word == 'import' and index > 1:
                     words = words[:index]
@@ -94,7 +110,10 @@ def extract_imports(file: str, imports_line_limit=50) -> List[str]:
             if not any(words):
                 continue
 
-            imports.extend(filter(lambda x: x, [w.split('.')[0] for w in words if w != 'import' and w != 'from']))
+            imports.extend(
+                filter(
+                    lambda x: x, [
+                        w.split('.')[0] for w in words if w != 'import' and w != 'from']))
 
     return imports
 

@@ -16,6 +16,10 @@ def get_stdlib_modules() -> List[str]:
     with urlopen(url) as f:
         page = f.read()
     modules = set()
-    for module in re.findall(r'#module-(.*?)[\'"]', page.decode('ascii', 'replace')):
+    for module in re.findall(
+        r'#module-(.*?)[\'"]',
+        page.decode(
+            'ascii',
+            'replace')):
         modules.add(module)
     return modules
