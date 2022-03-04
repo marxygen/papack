@@ -127,7 +127,8 @@ def read_requirements(file: str) -> List[str]:
     packages = []
     with open(file, 'r') as source:
         for line in source.readlines():
-            packages.append(line[:line.index('=')])
+            packages.append(
+                line[:line.index('=') if '=' in line else len(line)].strip())
     return packages
 
 
